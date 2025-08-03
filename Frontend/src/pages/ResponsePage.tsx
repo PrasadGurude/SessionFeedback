@@ -1,0 +1,187 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+type Question = {
+  id: string;
+  text: string;
+  type: "TEXT" | "YES_NO" | "RATING";
+  isRequired?: boolean;
+  options?: (string | number)[];
+};
+
+type AnswerMap = { [questionId: string]: string | number | boolean };
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api"; // Change if your backend runs elsewhere
+
+const ResponsePage = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<AnswerMap>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false); 
+  const navigate = useNavigate();
+
+  // Get sessionId from URL (assuming /response/:sessionId route)
+  const sessionId = window.location.pathname.split("/").pop();
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API_BASE_URL}/questions/${sessionId}`);
+        if (!res.ok) throw new Error("Failed to load questions");
+        const data = await res.json();
+        setQuestions(data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load questions");
+        setLoading(false);
+      }
+    };
+    fetchQuestions(); 
+  }, [sessionId]);
+
+  // For YES_NO, always store boolean; for RATING, store number; for TEXT, store string
+  const handleChange = (questionId: string, value: string | number, type?: string) => {
+    let v: string | number | boolean = value;
+    if (type === "YES_NO") {
+      v = value === "Yes" ? true : false;
+    } else if (type === "RATING") {
+      v = Number(value);
+    }
+    setAnswers((prev) => ({ ...prev, [questionId]: v }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
+    // Validate required questions
+    for (const q of questions) {
+      if (q.isRequired && (answers[q.id] === undefined || answers[q.id] === "")) {
+        setError(`Please answer all required questions.`);
+        return;
+      }
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/feedback/${sessionId}` , {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: Object.entries(answers).map(([questionId, value]) => ({
+            questionId,
+            value,
+          })),
+        }),
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        setError(errData.message || "Failed to submit responses");
+        return;
+      }
+      setSuccess(true);
+      setAnswers({});
+    } catch (err: any) {
+      setError(err?.message || "Failed to submit responses");
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <span className="text-lg text-gray-700">Loading questions...</span>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <span className="text-lg text-red-600">{error}</span>
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">Session Questions</h2>
+        {!success ? (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {questions.map((q, idx) => (
+              <div key={q.id} className="mb-6">
+                <div className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="inline-block bg-blue-100 text-blue-600 rounded-full w-7 h-7 flex items-center justify-center font-bold text-base">{idx + 1}</span>
+                  {q.text}
+                  {q.isRequired && <span className="text-red-500 ml-1">*</span>}
+                </div>
+                {q.type === "TEXT" && (
+                  <textarea
+                    value={answers[q.id] === undefined ? "" : String(answers[q.id])}
+                    onChange={(e) => handleChange(q.id, e.target.value, q.type)}
+                    required={q.isRequired}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 bg-gray-50 min-h-[80px] resize-y"
+                    placeholder="Type your answer..."
+                  />
+                )}
+                {q.type === "YES_NO" && (
+                  <div className="flex gap-6 mt-2">
+                    {(q.options || ["Yes", "No"]).map((opt) => (
+                      <label key={opt} className="inline-flex items-center cursor-pointer text-gray-700">
+                        <input
+                          type="radio"
+                          name={`q_${q.id}`}
+                          value={opt}
+                          checked={answers[q.id] === (opt === "Yes" ? true : false)}
+                          onChange={() => handleChange(q.id, opt, q.type)}
+                          required={q.isRequired}
+                          className="form-radio h-5 w-5 text-blue-600"
+                        />
+                        <span className="ml-2">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {q.type === "RATING" && (
+                  <div className="flex gap-4 mt-2">
+                    {(q.options || [1, 2, 3, 4, 5]).map((opt) => (
+                      <label key={opt} className="inline-flex flex-col items-center cursor-pointer">
+                        <input
+                          type="radio"
+                          name={`q_${q.id}`}
+                          value={opt}
+                          checked={answers[q.id] === Number(opt)}
+                          onChange={() => handleChange(q.id, opt, q.type)}
+                          required={q.isRequired}
+                          className="form-radio h-5 w-5 text-blue-600 mb-1"
+                        />
+                        <span className="text-gray-700">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <button
+              type="submit"
+              className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow transition-colors duration-200"
+            >
+              Submit
+            </button>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-6">
+            <div className="text-green-600 text-center font-medium text-lg">Response was sent!</div>
+            <button
+              className="py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition-colors duration-200"
+              onClick={() => navigate(`/contact/${sessionId}`)}
+            >
+              Contact
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ResponsePage;
