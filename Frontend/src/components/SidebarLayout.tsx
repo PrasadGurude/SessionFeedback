@@ -75,16 +75,15 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static top-0 left-0 z-40 h-screen bg-blue-800 text-white transition-all duration-300 ease-in-out flex flex-col ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 ${collapsed ? "w-20" : "w-64"}`}
+        className={`fixed md:static top-0 left-0 z-40 h-screen bg-blue-800 text-white transition-all duration-300 ease-in-out flex flex-col ${mobileOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0 ${collapsed ? "w-20" : "w-64"}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-blue-700">
           {!collapsed ? (
-            <h1 className="text-xl font-bold">Feedback</h1>
+            <h1 className="text-xl font-bold"> <Link to="/admin/dashboard">Feedback</Link> </h1>
           ) : (
-            <span className="text-xl font-bold">F</span>
+            <span className="text-xl font-bold"><Link to="/admin/dashboard">F</Link></span>
           )}
           <button
             onClick={() =>
@@ -117,9 +116,8 @@ export default function Sidebar() {
               key={to}
               to={to}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                isActive(to)
-              } ${collapsed ? "justify-center" : ""}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive(to)
+                } ${collapsed ? "justify-center" : ""}`}
             >
               <Icon className="w-5 h-5" />
               {!collapsed && label}
@@ -131,9 +129,8 @@ export default function Sidebar() {
               handleLogout()
               setMobileOpen(false)
             }}
-            className={`flex items-center gap-3 px-3 py-2 mt-4 text-left rounded-md text-sm font-medium text-blue-100 hover:bg-red-600 hover:text-white transition-colors ${
-              collapsed ? "justify-center" : ""
-            }`}
+            className={`flex items-center gap-3 px-3 py-2 mt-4 text-left rounded-md text-sm font-medium text-blue-100 hover:bg-red-600 hover:text-white transition-colors ${collapsed ? "justify-center" : ""
+              }`}
           >
             <LogOut className="w-5 h-5" />
             {!collapsed && "Logout"}
