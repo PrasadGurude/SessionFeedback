@@ -7,6 +7,8 @@ const { authenticateToken } = require("../middleware/authMiddleware")
 const router = express.Router()
 const prisma = new PrismaClient()
 
+
+//used
 // Register Admin
 router.post("/register-admin", async (req, res) => {
   const { name, email, password, mobileNumber, bio } = req.body
@@ -53,6 +55,7 @@ router.post("/register-admin", async (req, res) => {
   }
 })
 
+//used
 // Login Admin
 router.post("/login", async (req, res) => {
   const { email, password } = req.body
@@ -91,6 +94,7 @@ router.post("/login", async (req, res) => {
   }
 })
 
+//used
 // Change Password
 router.put("/change-password", authenticateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body
@@ -125,6 +129,8 @@ router.put("/change-password", authenticateToken, async (req, res) => {
   }
 })
 
+
+//used
 // Get Admin Profile
 router.get("/profile", authenticateToken, async (req, res) => {
   const adminId = req.adminId
@@ -152,8 +158,8 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 })
 
+//used
 // Update Admin Profile
-
 router.put("/profile", authenticateToken, async (req, res) => {
   const adminId = req.adminId 
   const { name, email, mobileNumber, bio } = req.body

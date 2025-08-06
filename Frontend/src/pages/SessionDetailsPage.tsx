@@ -194,7 +194,7 @@ export default function SessionDetailsPage() {
 
     try {
       // Delete the old question
-      await fetch(`${API_BASE_URL}/api/questions/${editingQuestion.id}`, {
+      await fetch(`${API_BASE_URL}/questions/${editingQuestion.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -202,7 +202,7 @@ export default function SessionDetailsPage() {
       })
 
       // Add the updated question
-      const response = await fetch(`${API_BASE_URL}/api/questions/${sessionId}`, {
+      const response = await fetch(`${API_BASE_URL}/questions/${sessionId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

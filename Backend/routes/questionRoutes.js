@@ -5,8 +5,8 @@ const { authenticateToken } = require("../middleware/authMiddleware")
 const router = express.Router()
 const prisma = new PrismaClient()
 
+//used
 // Admin protected routes
-
 // Add one or multiple questions to a session
 router.post("/:sessionId", authenticateToken, async (req, res) => {
   const { sessionId } = req.params;
@@ -62,6 +62,8 @@ router.post("/:sessionId", authenticateToken, async (req, res) => {
   }
 });
 
+
+//used
 router.delete("/:questionId", authenticateToken, async (req, res) => {
   const { questionId } = req.params
   const adminId = req.adminId // From authMiddleware
@@ -97,8 +99,9 @@ router.delete("/:questionId", authenticateToken, async (req, res) => {
     console.error("Error removing question:", error)
     res.status(500).json({ message: "Internal server error" })
   }
-}) // Remove a question
+}) 
 
+//used
 // Public routes (or can be protected if only admins should see questions)
 router.get("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;

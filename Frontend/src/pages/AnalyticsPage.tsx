@@ -50,7 +50,7 @@ const QuestionAnalysis: React.FC<QuestionAnalysisProps> = ({ question }) => {
     const data = [
       { name: "Yes", value: yesNoAnalysis.yes },
       { name: "No", value: yesNoAnalysis.no },
-      { name: "Unanswered", value: yesNoAnalysis.unanswered }
+      // { name: "Unanswered", value: yesNoAnalysis.unanswered }
     ];
     return (
       <div className="bg-gradient-to-br from-blue-50 to-purple-100 p-6 rounded-3xl shadow-lg mb-8 border border-blue-200">

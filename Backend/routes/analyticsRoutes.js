@@ -5,7 +5,7 @@ const { authenticateToken } = require("../middleware/authMiddleware")
 const router = express.Router()
 const prisma = new PrismaClient()
 
-
+//used
 // GET /sessions/:sessionId/questions
 router.get("/sessions/:sessionId/questions", authenticateToken, async (req, res) => {
   const { sessionId } = req.params

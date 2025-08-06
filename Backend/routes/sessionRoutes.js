@@ -5,6 +5,8 @@ const { authenticateToken } = require("../middleware/authMiddleware")
 const router = express.Router()
 const prisma = new PrismaClient()
 
+
+//used
 router.get("/admin/:adminId", authenticateToken, async (req, res) => {
   const { adminId } = req.params;
   try {
@@ -33,99 +35,7 @@ router.get("/admin/:adminId", authenticateToken, async (req, res) => {
   }
 });
 
-
-// Get Analytics for a Session (Admin Protected)
-router.get("/analytics/:sessionId", authenticateToken, async (req, res) => {
-  const { sessionId } = req.params;
-  const adminId = req.adminId;
-  try {
-    // Verify session ownership
-    const session = await prisma.session.findUnique({
-      where: { id: sessionId },
-      include: { admin: true },
-    });
-    if (!session) {
-      return res.status(404).json({ message: "Session not found" });
-    }
-    if (session.admin.id !== adminId) {
-      return res.status(403).json({ message: "Unauthorized: You can only view analytics for your own sessions" });
-    }
-
-    // Fetch all questions for the session
-    const questions = await prisma.question.findMany({
-      where: { sessionId },
-      orderBy: { createdAt: "asc" },
-    });
-
-    // Fetch all feedback responses for the session, including their answers
-    const feedbackResponses = await prisma.feedbackResponse.findMany({
-      where: { sessionId },
-      include: { answers: true },
-    });
-    const totalResponses = feedbackResponses.length;
-
-    // Build analytics
-    const analytics = {
-      sessionId: session.id,
-      sessionTitle: session.title,
-      totalFeedbackResponses: totalResponses,
-      questionAnalytics: [],
-    };
-
-    for (const question of questions) {
-      const questionData = {
-        questionId: question.id,
-        questionText: question.text,
-        questionType: question.type,
-        totalAnswers: 0,
-        details: {},
-      };
-      const answersForThisQuestion = feedbackResponses.flatMap((response) =>
-        response.answers.filter((answer) => answer.questionId === question.id)
-      );
-      questionData.totalAnswers = answersForThisQuestion.length;
-
-      if (question.type === "YES_NO") {
-        const yesCount = answersForThisQuestion.filter((a) => a.selectedOption === true).length;
-        const noCount = answersForThisQuestion.filter((a) => a.selectedOption === false).length;
-        questionData.details = {
-          yes: yesCount,
-          no: noCount,
-          unanswered: questionData.totalAnswers - (yesCount + noCount),
-        };
-      } else if (question.type === "RATING") {
-        const ratings = answersForThisQuestion
-          .map((a) => a.rating)
-          .filter((val) => typeof val === "number" && !isNaN(val));
-        const ratingCounts = {};
-        for (let i = 1; i <= 5; i++) {
-          ratingCounts[i] = ratings.filter((r) => r === i).length;
-        }
-        questionData.details = {
-          distribution: ratingCounts,
-          average: ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2) : null,
-          count: ratings.length,
-        };
-      } else if (question.type === "TEXT") {
-        const textResponses = answersForThisQuestion
-          .map((a) => a.responseText)
-          .filter((text) => text && text.trim() !== "");
-        questionData.details = {
-          responses: textResponses,
-          count: textResponses.length,
-        };
-      } else {
-        questionData.details = { message: "Unsupported question type for analytics" };
-      }
-      analytics.questionAnalytics.push(questionData);
-    }
-    res.status(200).json(analytics);
-  } catch (error) {
-    console.error("Error fetching session analytics:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-});
-
+//used
 // Create Session (Admin Protected)
 // Create Session (Admin Protected, with optional questions)
 router.post("/", authenticateToken, async (req, res) => {
@@ -203,6 +113,7 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 })
 
+//used
 // Get Session by ID (Admin Protected)
 router.get("/:sessionId", authenticateToken, async (req, res) => {
   const { sessionId } = req.params

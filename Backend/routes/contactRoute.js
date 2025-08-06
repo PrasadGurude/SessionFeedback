@@ -4,6 +4,8 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+
+//used
 // GET /api/contact/:adminId
 router.get('/:adminId', async (req, res) => {
   const { adminId } = req.params;
@@ -18,6 +20,8 @@ router.get('/:adminId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+//used
 // POST /api/contact/:sessionId
 router.post('/:sessionId', async (req, res) => {
   const { sessionId } = req.params;
