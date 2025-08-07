@@ -27,19 +27,20 @@ model Admin {
   mobileNumber String?
   bio          String?
   sessions     Session[]
-  contacts     Contacted[]  // 🔗 New relation to Contacted
+  contacts     Contacted[] // 🔗 New relation to Contacted
 }
 
 model Session {
-  id          String     @id @default(uuid())
+  id          String             @id @default(uuid())
   title       String
   description String
   date        DateTime
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime           @default(now())
   adminId     String
-  admin       Admin      @relation(fields: [adminId], references: [id])
+  admin       Admin              @relation(fields: [adminId], references: [id])
   questions   Question[]
   responses   FeedbackResponse[]
+  Contacted   Contacted[]
 }
 
 model Question {
@@ -53,22 +54,22 @@ model Question {
 }
 
 model FeedbackResponse {
-  id         String    @id @default(uuid())
-  sessionId  String
-  createdAt  DateTime  @default(now())
-  session    Session   @relation(fields: [sessionId], references: [id])
-  answers    Answer[]
+  id        String   @id @default(uuid())
+  sessionId String
+  createdAt DateTime @default(now())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  answers   Answer[]
 }
 
 model Answer {
-  id             String            @id @default(uuid())
+  id             String           @id @default(uuid())
   questionId     String
   feedbackId     String
-  question       Question          @relation(fields: [questionId], references: [id])
-  feedback       FeedbackResponse  @relation(fields: [feedbackId], references: [id])
-  responseText   String?           // For TEXT
-  selectedOption Boolean?          // For YES_NO (true or false)
-  rating         Int?              // For RATING (integer answer)
+  question       Question         @relation(fields: [questionId], references: [id])
+  feedback       FeedbackResponse @relation(fields: [feedbackId], references: [id])
+  responseText   String? // For TEXT
+  selectedOption Boolean? // For YES_NO (true or false)
+  rating         Int? // For RATING (integer answer)
 }
 
 // ✅ FINAL CONTACTED MODEL
@@ -81,4 +82,6 @@ model Contacted {
   createdAt   DateTime @default(now())
   adminId     String
   admin       Admin    @relation(fields: [adminId], references: [id])
+  sessionId   String?
+  session     Session? @relation(fields: [sessionId], references: [id])
 }

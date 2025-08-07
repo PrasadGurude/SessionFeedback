@@ -33,6 +33,7 @@ const ContactPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -99,6 +100,12 @@ const ContactPage: React.FC = () => {
         body: JSON.stringify(form),
       });
 
+      if (res.status === 400) {
+        setAlreadySubmitted(true);
+        setLoading(false);
+        return;
+      }
+
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         setFormErrors((prev) => ({
@@ -126,6 +133,21 @@ const ContactPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if( alreadySubmitted ) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
+            Already Contacted
+          </h2>
+          <p className="text-center text-gray-700">
+            You have already submitted a contact message. Thank you!
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4">

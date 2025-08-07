@@ -115,7 +115,28 @@ const CreateSession: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-3 text-blue-900">Questions</label>
+          <div>
+            <label className="block font-semibold mb-3 text-blue-900">Questions</label>
+            <button
+              type="button"
+              onClick={() => {
+                let newQuestions = questions;
+                if (questions.length > 0 && !questions[0].text) {
+                  newQuestions = questions.slice(1);
+                }
+                setQuestions([
+                  ...newQuestions,
+                  { text: "How was the session", type: "TEXT", isRequired: true },
+                  { text: "Would you recommend this session", type: "YES_NO", isRequired: true },
+                  { text: "Rate the session", type: "RATING", isRequired: true },
+                  { text: "Any additional comments", type: "TEXT", isRequired: false }
+                ]);
+              }}
+              className="mb-4 px-5 py-2 bg-blue-200 text-blue-900 rounded-lg font-semibold hover:bg-blue-300 transition-colors shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              Default questions
+            </button>
+          </div>
           <div className="space-y-4">
             {questions.map((q, idx) => (
               <div key={idx} className="p-4 border-2 border-blue-100 rounded-2xl bg-white shadow flex flex-col gap-2 relative group">

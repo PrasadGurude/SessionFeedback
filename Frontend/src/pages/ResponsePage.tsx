@@ -19,14 +19,24 @@ const ResponsePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
 
+  const navigate = useNavigate();
   const sessionId = window.location.pathname.split("/").pop();
 
+  // ✅ Check if already submitted on mount
   useEffect(() => {
+    if (sessionId) {
+      const submittedSessions = JSON.parse(localStorage.getItem("submittedSessions") || "[]");
+      if (submittedSessions.includes(sessionId)) {
+        setAlreadySubmitted(true);
+        setLoading(false);
+        return;
+      }
+    }
+
     const fetchQuestions = async () => {
       try {
-        setLoading(true);
         const res = await fetch(`${API_BASE_URL}/questions/${sessionId}`);
         if (!res.ok) throw new Error("Failed to load questions");
         const data = await res.json();
@@ -37,6 +47,7 @@ const ResponsePage = () => {
         setLoading(false);
       }
     };
+
     fetchQuestions();
   }, [sessionId]);
 
@@ -57,7 +68,7 @@ const ResponsePage = () => {
 
     for (const q of questions) {
       if (q.isRequired && (answers[q.id] === undefined || answers[q.id] === "")) {
-        setError(`Please answer all required questions.`);
+        setError("Please answer all required questions.");
         return;
       }
     }
@@ -75,11 +86,20 @@ const ResponsePage = () => {
           })),
         }),
       });
+
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         setError(errData.message || "Failed to submit responses");
         return;
       }
+
+      // ✅ Store submitted sessionId in localStorage
+      const submittedSessions = JSON.parse(localStorage.getItem("submittedSessions") || "[]");
+      if (!submittedSessions.includes(sessionId)) {
+        submittedSessions.push(sessionId);
+        localStorage.setItem("submittedSessions", JSON.stringify(submittedSessions));
+      }
+
       setSuccess(true);
       setAnswers({});
     } catch (err: any) {
@@ -93,10 +113,26 @@ const ResponsePage = () => {
         <span className="text-lg text-gray-700 animate-pulse">Loading questions...</span>
       </div>
     );
+
   if (error)
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-100 to-pink-100">
         <span className="text-lg text-red-700 font-semibold">{error}</span>
+      </div>
+    );
+
+  if (alreadySubmitted)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+        <div className="text-center space-y-6">
+          <h2 className="text-2xl font-bold text-green-700">You have already submitted the response for this session.</h2>
+          <button
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
+            onClick={() => navigate(`/contact/${sessionId}`)}
+          >
+            Contact Us
+          </button>
+        </div>
       </div>
     );
 
@@ -190,7 +226,7 @@ const ResponsePage = () => {
               className="py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition duration-200"
               onClick={() => navigate(`/contact/${sessionId}`)}
             >
-              Contact
+              Contact Us
             </button>
           </div>
         )}

@@ -37,6 +37,17 @@ router.post('/:sessionId', async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
 
+    const alreadyContacted = await prisma.contacted.findFirst({
+      where: {
+        sessionId,
+        email,
+      },
+    });
+
+    if (alreadyContacted) {
+      return res.status(400).json({ error: 'You have already contacted us.' });
+    }
+
     // Create the Contacted row
     const contacted = await prisma.contacted.create({
       data: {
@@ -45,6 +56,7 @@ router.post('/:sessionId', async (req, res) => {
         mobile,
         description,
         adminId: session.adminId,
+        sessionId,
       },
     });
 

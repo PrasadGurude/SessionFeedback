@@ -4,6 +4,7 @@ const QRcode = () => {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
   const feedbackUrl = `${window.location.origin}/feedback/${sessionId}`
+  
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(feedbackUrl)}`
 
   return (

@@ -251,10 +251,10 @@ export default function ProfilePage() {
                   <span className="block font-medium text-gray-500 mb-1">Mobile Number</span>
                   <p>{admin?.mobileNumber || "Not Provided"}</p>
                 </div>
-                <div>
+                {/* <div>
                   <span className="block font-medium text-gray-500 mb-1">Account ID</span>
                   <p className="font-mono text-sm text-gray-700">{admin?.id}</p>
-                </div>
+                </div> */}
               </div>
               <div>
                 <span className="block font-medium text-gray-500 mb-1">Bio</span>
