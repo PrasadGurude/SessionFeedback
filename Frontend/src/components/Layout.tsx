@@ -1,6 +1,5 @@
-import React from "react";
-import Navbar from "./Navbar";
-import { useLocation, Outlet } from "react-router-dom";
+
+import { Outlet } from "react-router-dom";
 import SidebarLayout from "./SidebarLayout";
 
 // const HIDE_NAVBAR_PATHS = ["/", "/admin/login", "/admin/register","/feedback/:sessionId"];
